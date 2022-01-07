@@ -44,7 +44,6 @@ export async function checkHash(hash) {
         let addresses = [externalAddress.UniswapMulticall, ...Object.values(vaultAddress)]
 
         if (addresses.includes(txDetails.to)) {
-            console.log(vault, txDetails.to, txDetails.method)
             if (txDetails.method == "commitAndClose" || txDetails.method == "tryAggregate") {
                 console.log(vault, txDetails.to, txDetails.method)
                 const details = await decodeCommitAndClose(hash, vault)
@@ -85,4 +84,6 @@ export async function main(listenerFunction) {
     await listenerFunction()
 }
 
-// main()
+if (require.main === module) {
+    main(listenVaultEvents)
+}

@@ -7,7 +7,7 @@ ETH Put:  ${details.RibbonThetaYearnVaultETHPut} (Bid in USDC)
 wstETH Call: ${details.RibbonThetaVaultSTETHCall}
 ETH Call:  ${details.RibbonThetaVaultETHCall}
 
-Please prepare the collateral needed to bid on the auctions beforehand because the auctions will only last for 15 minutes. See you at 11am UTC for the first auction.
+Please prepare the collateral needed to bid on the auctions beforehand because the auctions will only last for 10 minutes. See you at 11am UTC for the first auction.
 
 Note: As we are deprecating v1 vaults this week, there might be some difference between the actual auction amounts and the estimated amounts above as depositors migrate from v1 to our v2 vaults.
 
@@ -15,7 +15,7 @@ Will post another estimate closer to 11am UTC.`
 }
 
 export const auctionDetails = (details) => { 
-    return `Hello everyone, the auction for our ${details.asset} ${details.type} options will begin in 15 minutes.
+    return `Hello everyone, the auction for our ${details.asset} ${details.type} options will begin in 10 minutes.
 
 Here are the details:
 

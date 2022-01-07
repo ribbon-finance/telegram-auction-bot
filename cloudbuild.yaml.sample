@@ -1,0 +1,12 @@
+steps:
+- name: node
+  entrypoint: yarn
+  args: ['install']
+- name: node
+  entrypoint: yarn
+  args: ['test']
+  env:
+  - 'BOT_TOKEN=<your_bot_token>'
+  - 'CHAT_ID=<your_chat_id>'
+  - 'WEBSOCKET_URL=<your_websocket_url>'
+  - 'RPC_URL=<your_rpc_url>'
