@@ -25,3 +25,7 @@ Notes:
 
 1. `/setstrike`: set the strike price (only used for ETH put for now) e.g. /setstrike ETHput 2800
 2. `/getsizes`: get the estimated sizes for the auctions
+
+## Deployment:
+
+The bot is deployed in a VM hosted by Google Cloud Compute service. It's run via tmux.
