@@ -20,3 +20,8 @@ Notes:
 
 1. Run `yarn test`
 2. Testing uses past transaction hashes
+
+## Bot Commands:
+
+1. `/setstrike`: set the strike price (only used for ETH put for now) e.g. /setstrike ETHput 2800
+2. `/getsizes`: get the estimated sizes for the auctions
