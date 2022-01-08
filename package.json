@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "npx ts-node src/listener.ts",
+    "bot": "npx ts-node src/bot.ts",
     "test": "npx ts-node src/test.ts"
   },
   "repository": {

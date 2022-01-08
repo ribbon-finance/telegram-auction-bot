@@ -3,7 +3,6 @@ import {
     externalAddress, 
 } from "./constants"
 import { 
-    estimatedSize, 
     auctionDetails, 
     liveAuction, 
     stETHExplanation 
@@ -13,7 +12,6 @@ import {
     decodeCommitAndClose,
     decodeRollToNextOption,
     getStethPrice,
-    getEstimatedSizes
 } from "./helpers"
 
 import { Telegram } from 'telegraf';
@@ -26,9 +24,6 @@ const chatId = process.env.CHAT_ID
 const web3Ws = new Web3(process.env.WEBSOCKET_URL)
 
 const transactionLedger = []
-const input = {
-    "ethput-strike": undefined
-}
 
 async function listenVaultEvents() {
     await web3Ws.eth.subscribe('logs', {
@@ -77,13 +72,6 @@ export async function checkHash(hash) {
 }
 
 export async function main(listenerFunction) {
-    // const sizes = await getEstimatedSizes()
-
-    // telegram.sendMessage(
-    //     chatId,
-    //     estimatedSize(sizes)
-    // );
-
     await listenerFunction()
 }
 
