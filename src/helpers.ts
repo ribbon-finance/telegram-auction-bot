@@ -34,10 +34,9 @@ async function calculateyvPutSize(amount) {
         ChainLinkOracleABI as AbiItem[], 
         externalAddress.ETHUSDChainlinkOracle
     )
-    const ethPrice = await oracle.methods.latestAnswer().call()
+
     return BigNumber.from(amount)
         .mul(yvUSDCPrice).div(10**6)
-        .mul(10**8).div(ethPrice)
 }
 
 export async function decodeTransaction(hash) {
@@ -88,19 +87,13 @@ export async function decodeCommitAndClose(hash, vault) {
         oTokenFactoryABI, 
         "OtokenCreated"
     );
-
-    const contract = new web3.eth.Contract(
-        RibbonThetaVaultABI as AbiItem[], 
-        vaultAddress[vault]
-    )
-
-    let size = await contract.methods.vaultState().call()
+    
+    let size = await getDeposit(vault)
+    const decimals = getVaultDecimals(vault)
 
     if (vault == "RibbonThetaYearnVaultETHPut") {
-        size.lockedAmount = await calculateyvPutSize(size.lockedAmount)
+        size = await calculateyvPutSize(size)
     } 
-
-    const decimals = getVaultDecimals(vault)
 
     return {
         strikePrice: parseFloat(
@@ -109,7 +102,7 @@ export async function decodeCommitAndClose(hash, vault) {
         expiry: moment.unix(Number(oTokenDetails.expiry))
             .utc().format("Do MMMM YYYY [at] HA UTC"), 
         size: parseFloat(
-            ethers.utils.formatUnits(size.lockedAmount, decimals)
+            ethers.utils.formatUnits(size, decimals)
         ).toFixed(2),
         vault: vault,
         asset: vaultAssets[vault],
@@ -140,7 +133,7 @@ export async function decodeRollToNextOption(hash, vault) {
     }
 }
 
-export async function getStethPrice() {
+export async function getStethPrice(formatted=true) {
     const stETH = new web3.eth.Contract(
         stETHABI as AbiItem[], 
         externalAddress.stETH
@@ -148,41 +141,57 @@ export async function getStethPrice() {
     const numerator = ethers.utils.parseUnits('1', 18)
     const tokenPerstETH = await stETH.methods.tokensPerStEth().call()
     
-    return parseFloat(
-        ethers.utils.formatUnits(numerator.mul(numerator).div(tokenPerstETH), 18)
-    ).toFixed(4)
+    return formatted 
+        ? parseFloat(
+            ethers.utils.formatUnits(numerator.mul(numerator).div(tokenPerstETH), 18)
+        ).toFixed(4)
+        : numerator.mul(numerator).div(tokenPerstETH)
 }
 
-export async function getEstimatedSizes() {
-    const promises = await Promise.all(Object.keys(vaultAddress).map(async (vault) => {
-        const abi = vault != "RibbonThetaVaultSTETHCall"
+export async function getDeposit(vault) {
+    const abi = vault != "RibbonThetaVaultSTETHCall"
             ? RibbonThetaVaultABI
             : RibbonThetaVaultSTETHABI;
 
-        const contract = new web3.eth.Contract(
-            abi as AbiItem[], 
-            vaultAddress[vault]
-        )
-        const total = await contract.methods.totalBalance().call();
-        const state = await contract.methods.vaultState().call();
-        const pps = await contract.methods.pricePerShare().call();
+    const contract = new web3.eth.Contract(
+        abi as AbiItem[], 
+        vaultAddress[vault]
+    )
+
+    const total = await contract.methods.totalBalance().call();
+    const state = await contract.methods.vaultState().call();
+    const pps = await contract.methods.pricePerShare().call();
+    const decimals = getVaultDecimals(vault)
+    const divider = ethers.utils.parseUnits('1', decimals)
+
+    let size = state.queuedWithdrawShares != "0"
+        ? BigNumber.from(total)
+            .sub(BigNumber.from(state.queuedWithdrawShares).mul(pps).div(divider))
+        : BigNumber.from(total)
+    
+    return size;
+}
+
+export async function getEstimatedSizes(strikes) {
+    const promises = await Promise.all(Object.keys(vaultAddress).map(async (vault) => {
+
+        let size = await getDeposit(vault)
         const decimals = getVaultDecimals(vault)
         const divider = ethers.utils.parseUnits('1', decimals)
 
-        let size = state.queuedWithdrawShares != "0"
-            ? BigNumber.from(total)
-                .sub(BigNumber.from(state.queuedWithdrawShares).mul(pps).div(divider))
-            : BigNumber.from(total)
-
         if (vault == "RibbonThetaYearnVaultETHPut") {
             size = await calculateyvPutSize(size)
+            size = size.div(strikes["ETHput"])
+        } else if (vault == "RibbonThetaVaultSTETHCall") {
+            const steth = await getStethPrice(false);
+            size = size.mul(divider).div(steth)
         }
 
         return {
             vaultName: vault,
             size: parseFloat(
                 ethers.utils.formatUnits(size, decimals)
-            ).toFixed(2)
+            ).toFixed(2).toLocaleString()
         };
     }))
 

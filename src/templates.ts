@@ -1,11 +1,15 @@
+export function formatNumber(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 export const estimatedSize = (details) => { 
     return `These are the estimated sizes for out V2 vaults:
 
-WBTC Call: ${details.RibbonThetaVaultWBTCCall}
-AAVE Call:  ${details.RibbonThetaVaultAAVECall}
-ETH Put:  ${details.RibbonThetaYearnVaultETHPut} (Bid in USDC)
-wstETH Call: ${details.RibbonThetaVaultSTETHCall}
-ETH Call:  ${details.RibbonThetaVaultETHCall}
+WBTC Call: ${formatNumber(details.RibbonThetaVaultWBTCCall)}
+AAVE Call:  ${formatNumber(details.RibbonThetaVaultAAVECall)}
+wstETH Call: ${formatNumber(details.RibbonThetaVaultSTETHCall)}
+ETH Call:  ${formatNumber(details.RibbonThetaVaultETHCall)}
+ETH Put:  ${formatNumber(details.RibbonThetaYearnVaultETHPut)} (Bid in USDC)
 
 Please prepare the collateral needed to bid on the auctions beforehand because the auctions will only last for 10 minutes. See you at 11am UTC for the first auction.
 
@@ -19,14 +23,13 @@ export const auctionDetails = (details) => {
 
 Here are the details:
 
-Estimated Size: ${details.size} ${details.asset}
-Strike: $${details.strikePrice}
+Estimated Size: ${formatNumber(details.size)} ${details.asset}
+Strike: $${formatNumber(details.strikePrice)}
 Expiry: ${details.expiry}`
 }
 
 export const liveAuction = (details) => { 
     return `The ${details.asset} ${details.type} auction is now live:
-Final Size: ${details.depositAmount}
 
 ${details.asset} Auction Link: https://gnosis-auction.eth.link/#/auction?auctionId=${details.auctionId}&chainId=1#topAnchor`
 }

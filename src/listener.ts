@@ -26,6 +26,9 @@ const chatId = process.env.CHAT_ID
 const web3Ws = new Web3(process.env.WEBSOCKET_URL)
 
 const transactionLedger = []
+const input = {
+    "ethput-strike": undefined
+}
 
 async function listenVaultEvents() {
     await web3Ws.eth.subscribe('logs', {
@@ -45,7 +48,7 @@ export async function checkHash(hash) {
 
         if (addresses.includes(txDetails.to)) {
             if (txDetails.method == "commitAndClose" || txDetails.method == "tryAggregate") {
-                console.log(vault, txDetails.to, txDetails.method)
+                console.log(vault, txDetails.to, hash, txDetails.method)
                 const details = await decodeCommitAndClose(hash, vault)
 
                 let msg = auctionDetails(details)
@@ -62,7 +65,7 @@ export async function checkHash(hash) {
                     msg
                 );
             } else if (txDetails.method == "rollToNextOption") {
-                console.log(vault, txDetails.to, txDetails.method)
+                console.log(vault, txDetails.to, hash, txDetails.method)
                 const details = await decodeRollToNextOption(hash, vault)
                 telegram.sendMessage(
                     chatId,
@@ -74,12 +77,12 @@ export async function checkHash(hash) {
 }
 
 export async function main(listenerFunction) {
-    const sizes = await getEstimatedSizes()
+    // const sizes = await getEstimatedSizes()
 
-    telegram.sendMessage(
-        chatId,
-        estimatedSize(sizes)
-    );
+    // telegram.sendMessage(
+    //     chatId,
+    //     estimatedSize(sizes)
+    // );
 
     await listenerFunction()
 }
