@@ -17,6 +17,7 @@ import Web3 from "web3"
 import { ethers, BigNumber } from "ethers"
 import moment from "moment-timezone";
 import { AbiItem } from 'web3-utils'
+import * as fs from 'fs';
 
 require("dotenv").config()
 
@@ -90,14 +91,16 @@ export async function decodeCommitAndClose(hash, vault) {
     
     let size = await getDeposit(vault)
     const decimals = getVaultDecimals(vault)
+    const strikePrice = BigNumber.from(oTokenDetails.strikePrice)
 
     if (vault == "RibbonThetaYearnVaultETHPut") {
         size = await calculateyvPutSize(size)
+        size = size.mul(10**8).div(strikePrice)
     } 
 
     return {
         strikePrice: parseFloat(
-            BigNumber.from(oTokenDetails.strikePrice).div(10**8).toString()
+            strikePrice.div(10**8).toString()
         ).toFixed(2),
         expiry: moment.unix(Number(oTokenDetails.expiry))
             .utc().format("Do MMMM YYYY [at] HA UTC"), 

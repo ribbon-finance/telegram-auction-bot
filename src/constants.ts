@@ -53,17 +53,18 @@ export const externalAddress = {
 }
 
 export const mockAuctionSeries = [
-    // "0xed43121d795c49ba0bcc9db1e0918b7c1bbfaf3c07b2c513bcf8d171b6c86703", // WBTC commit and close
-    // "0xeb8dc049f3e0306fe93beea479723a967e3b0cb81d65f953b9fa30db9823f41d", // WBTC roll to next options
-    // "0x7cfb8cdc139c9cef284dca44c8ef7335dced75d0f561498bb18330ca192b8a6f", // AAVE commit and close
-    // "0xf3a2bb79c5ee14027d137b2410c8d1c5592d22f843b0618a7660cdadec93b928", // AAVE roll to next options
-    // "0xb9d854988646e7e88ecb15ab1c501741fcc6a3173e6060800398bbdfc9056c2f", // STETH commit and close
-    // "0x6fc08319b9df2815dc4bcc14ce5e099b1948fda8639574515d4e365a1f4ec3e8", // STETH roll to next options
-    // "0xdafedcf01e1bfe9987091a1d3634bf2a7630124d479822759ca274818bcf04ab", // ETH commit and close
-    // "0x277acd9f23da403d9c558025a979bd36e2294c7683a249597afb26cc4eb88658", // ETH roll to next options
+    "0xed43121d795c49ba0bcc9db1e0918b7c1bbfaf3c07b2c513bcf8d171b6c86703", // WBTC commit and close
+    "0xeb8dc049f3e0306fe93beea479723a967e3b0cb81d65f953b9fa30db9823f41d", // WBTC roll to next options
+    "0x7cfb8cdc139c9cef284dca44c8ef7335dced75d0f561498bb18330ca192b8a6f", // AAVE commit and close
+    "0xf3a2bb79c5ee14027d137b2410c8d1c5592d22f843b0618a7660cdadec93b928", // AAVE roll to next options
+    "0xb9d854988646e7e88ecb15ab1c501741fcc6a3173e6060800398bbdfc9056c2f", // STETH commit and close
+    "0x6fc08319b9df2815dc4bcc14ce5e099b1948fda8639574515d4e365a1f4ec3e8", // STETH roll to next options
+    "0xdafedcf01e1bfe9987091a1d3634bf2a7630124d479822759ca274818bcf04ab", // ETH commit and close
+    "0x277acd9f23da403d9c558025a979bd36e2294c7683a249597afb26cc4eb88658", // ETH roll to next options
     "0xb9c5b53397c30f25189ba53c35a3bc9c3fc9cb8be2922f215744386ce18feac1", // yv commit and close
-    // "0x337866fc845aa4cc0255431119d3dcfc9fea193eed2b539b0a0494652ce2ba5d",// yv roll to next options
+    "0x337866fc845aa4cc0255431119d3dcfc9fea193eed2b539b0a0494652ce2ba5d",// yv roll to next options
 ]
 
+// Alternative tx Hash for testing
 // 0xed43121d795c49ba0bcc9db1e0918b7c1bbfaf3c07b2c513bcf8d171b6c86703 // WBTC commit and close
 // 0xb9c5b53397c30f25189ba53c35a3bc9c3fc9cb8be2922f215744386ce18feac1 // yv commit and close
