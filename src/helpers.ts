@@ -151,6 +151,21 @@ export async function getStethPrice(formatted=true) {
         : numerator.mul(numerator).div(tokenPerstETH)
 }
 
+export async function getYvusdcPrice(formatted=true) {
+    const yvUSDC = new web3.eth.Contract(
+        yvUSDCABI as AbiItem[], 
+        externalAddress.yvUSDC
+    )
+    const numerator = ethers.utils.parseUnits('1', 18)
+    const pricePerShare = await yvUSDC.methods.pricePerShare().call()
+    
+    return formatted 
+        ? parseFloat(
+            ethers.utils.formatUnits(pricePerShare, 6)
+        ).toFixed(4)
+        : pricePerShare
+}
+
 export async function getDeposit(vault) {
     const abi = vault != "RibbonThetaVaultSTETHCall"
             ? RibbonThetaVaultABI

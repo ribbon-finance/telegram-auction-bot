@@ -10,8 +10,8 @@ require("dotenv").config()
 
 async function listenMockEvents() {
     for (let i=0; i<mockAuctionSeries.length; i++) {
-        await checkHash(mockAuctionSeries[i]);
-        await delay(5000)
+        await checkHash(mockAuctionSeries[i], true);
+        await delay(2000)
     }
 }
 

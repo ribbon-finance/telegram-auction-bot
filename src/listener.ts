@@ -5,13 +5,15 @@ import {
 import { 
     auctionDetails, 
     liveAuction, 
-    stETHExplanation 
+    stETHExplanation, 
+    yvUSDCExplanation
 } from './templates';
 import {
     decodeTransaction,
     decodeCommitAndClose,
     decodeRollToNextOption,
     getStethPrice,
+    getYvusdcPrice,
 } from "./helpers"
 
 import { Telegram } from 'telegraf';
@@ -34,7 +36,7 @@ async function listenVaultEvents() {
     })
 }
 
-export async function checkHash(hash) {
+export async function checkHash(hash, test=false) {
     if (!transactionLedger.includes(hash)) {
         transactionLedger.push(hash)
         let txDetails = await decodeTransaction(hash)
@@ -52,20 +54,25 @@ export async function checkHash(hash) {
                     const stethPrice = await getStethPrice();
                     msg = auctionDetails(details).concat("\n\n", stETHExplanation(stethPrice))
                 } else if (vault == "RibbonThetaYearnVaultETHPut") {
-                    msg = auctionDetails(details).concat("\n[Bids will be in USDC]")
+                    const yvUSDCPrice = await getYvusdcPrice();
+                    msg = auctionDetails(details).concat("\n[Bids will be in USDC]", "\n\n", yvUSDCExplanation(yvUSDCPrice))
                 }
 
-                telegram.sendMessage(
-                    chatId,
-                    msg
-                );
+                !test
+                    ? telegram.sendMessage(
+                        chatId,
+                        msg
+                    )
+                    : console.log(msg + "\n")
             } else if (txDetails.method == "rollToNextOption") {
                 console.log(vault, txDetails.to, hash, txDetails.method)
                 const details = await decodeRollToNextOption(hash, vault)
-                telegram.sendMessage(
-                    chatId,
-                    liveAuction(details)
-                );
+                !test 
+                    ? telegram.sendMessage(
+                        chatId,
+                        liveAuction(details)
+                    )
+                    : console.log(liveAuction(details) + "\n")
             }
         }
     } 
