@@ -17,7 +17,7 @@ Note: As we started deprecating v1 vaults a fortnight ago, there might be some d
 }
 
 export const auctionDetails = (details) => { 
-    return `Hello everyone, the auction for our ${details.asset} ${details.type} options will begin in 10 minutes.
+    return `Hello everyone, the auction for our ${details.asset} ${details.type} options will begin in 5 minutes.
 
 Here are the details:
 
