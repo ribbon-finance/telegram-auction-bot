@@ -96,7 +96,11 @@ export async function decodeCommitAndClose(hash, vault) {
     if (vault == "RibbonThetaYearnVaultETHPut") {
         size = await calculateyvPutSize(size)
         size = size.mul(10**8).div(strikePrice)
-    } 
+    } else if (vault == "RibbonThetaVaultSTETHCall") {
+        const divider = ethers.utils.parseUnits('1', decimals)
+        const steth = await getStethPrice(false);
+        size = size.mul(divider).div(steth)
+    }
 
     return {
         strikePrice: parseFloat(
