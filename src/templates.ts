@@ -29,7 +29,7 @@ Expiry: ${details.expiry}`
 export const liveAuction = (details) => { 
     return `The ${details.asset} ${details.type} auction is now live:
 
-${details.asset} Auction Link: https://gnosis-auction.eth.link/#/auction?auctionId=${details.auctionId}&chainId=1#topAnchor`
+${details.asset} Auction Link: https://gnosis-auction.eth.limo/#/auction?auctionId=${details.auctionId}&chainId=1#topAnchor`
 }
 
 export const stETHExplanation = (price) => {
