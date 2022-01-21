@@ -36,8 +36,8 @@ async function calculateyvPutSize(amount) {
         externalAddress.ETHUSDChainlinkOracle
     )
 
-    return BigNumber.from(amount)
-        .mul(yvUSDCPrice).div(10**6)
+    return BigNumber.from(amount).mul(10**6)
+        .div(yvUSDCPrice)
 }
 
 export async function decodeTransaction(hash) {
