@@ -46,7 +46,7 @@ export const getVaultDecimals = (vault) => {
 export const externalAddress = {
     "oTokenFactory": "0x7C06792Af1632E77cb27a558Dc0885338F4Bdf8E",
     "gnosisEasyAuction": "0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101",
-    "yvUSDC": "0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9",
+    "yvUSDC": "0xa354f35829ae975e850e23e9615b11da1b3dc4de",//"0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9",
     "stETH": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
     "UniswapMulticall": "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
     "ETHUSDChainlinkOracle": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
