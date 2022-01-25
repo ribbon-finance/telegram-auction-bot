@@ -24,6 +24,14 @@ require("dotenv").config()
 const web3 = new Web3(process.env.RPC_URL)
 const InputDataDecoder = require("ethereum-input-data-decoder")
 
+export type Cache = {
+    strike: {}
+};
+
+const emptyCache: Cache = {
+    strike: {}
+}
+
 async function calculateyvPutSize(amount) {
     const yvUSDC = new web3.eth.Contract(
         yvUSDCABI as AbiItem[], 
@@ -224,6 +232,38 @@ export async function getEstimatedSizes(strikes) {
     }) 
 
     return sizes;
+}
+
+export function readCache() {
+    try {
+        const buffer = fs.readFileSync(__dirname+'/.cache')
+
+        return JSON.parse(buffer.toString()) as Cache
+    } catch {
+        fs.writeFile(
+            __dirname+'/.cache', 
+            JSON.stringify(emptyCache), 
+            err => {
+                if (err) {
+                    console.error(err)
+                    return
+            }
+        })
+
+        return emptyCache
+    }
+}
+
+export function writeCache(cache: Cache){
+    fs.writeFile(
+        __dirname+'/.cache', 
+        JSON.stringify(cache), 
+        err => {
+            if (err) {
+                console.error(err)
+                return
+        }
+    })
 }
 
 export function delay(ms: number) {
