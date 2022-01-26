@@ -34,16 +34,16 @@ async function main(interval: number){
             writeCache(cache)
         }
 
-        if (now <= schedulePost.unix() && !sendReceipt.schedule) {
+        if (now >= schedulePost.unix() && !sendReceipt.schedule) {
             await sendOrEditMessage("schedule", scheduleTemplate(auctionSchedule))
             sendReceipt.schedule = true
             await delay(1000)
-        } else if (now <= strikePost.unix() && !sendReceipt.strike ) {
+        } else if (now >= strikePost.unix() && !sendReceipt.strike ) {
             const strike = cache.strike["ETHput"]
             await sendOrEditMessage("strike", `Please update the strike price for ETH Put.\nCurrent Strike Price: $${formatNumber(strike)}`)
             sendReceipt.strike = true
             await delay(1000)
-        } else if (now <= sizePost.unix() && !sendReceipt.size) {
+        } else if (now >= sizePost.unix() && !sendReceipt.size) {
             const sizes = await getEstimatedSizes(cache.strike)
             await sendOrEditMessage("size", estimatedSize(sizes))
             sendReceipt.size = true
@@ -63,7 +63,7 @@ async function main(interval: number){
         })
 
         for (let i=0; i < pending.length; i++){
-            if (pending[i].scheduled >= now) {
+            if (now >= pending[i].scheduled) {
 
                 await sendOrEditMessage(pending[i].key, pending[i].message)
 
