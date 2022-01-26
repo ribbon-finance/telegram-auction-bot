@@ -1,3 +1,13 @@
+import RibbonThetaVaultABI from "./abi/RibbonThetaVault.json"
+import RibbonThetaVaultSTETHABI from "./abi/RibbonThetaVaultSTETH.json"
+import oTokenFactoryABI from "./abi/oTokenFactory.json"
+import GnosisEasyAuctionABI from "./abi/GnosisEasyAuction.json"
+import UniswapMulticallABI from "./abi/UniswapMulticall.json"
+import ChainLinkOracleABI from "./abi/ChainLinkOracle.json"
+import stETHABI from "./abi/stETH.json"
+import yvUSDCABI from "./abi/yvUSDC.json"
+import { AbiItem } from 'web3-utils'
+
 export const AuctionList = [
     "wbtc-call",
     "aave-call",
@@ -27,17 +37,42 @@ export const getBiddingToken = (auction: Auction) => {
         case "aave-call":
         case "eth-call":
         case "eth-put":
-            return auction.split("-").pop().toUpperCase()
+            return auction.split("-")[0].toUpperCase()
         case "steth-call":
             return "wstETH"
     }
 } 
 
+export const getUnderlyingDecimals = (auction: Auction) => {
+    switch (auction) {
+        case "aave-call":
+        case "eth-call":
+        case "steth-call":
+            return 18
+        case "wbtc-call":
+            return 8
+        case "eth-put":
+            return 6
+    }
+}
+
+export const getVaultAbi = (auction: Auction) => {
+    switch (auction) {
+        case "wbtc-call":
+        case "aave-call":
+        case "eth-call":
+        case "eth-put":
+            return RibbonThetaVaultABI as AbiItem[]
+        case "steth-call":
+            return RibbonThetaVaultSTETHABI as AbiItem[]
+    }
+}
+
 export const VaultAddressMap: { [auction in Auction]: string } = {
-    "wbtc-call": "0xe63151A0Ed4e5fafdc951D877102cf0977Abd365",
-    "aave-call": "0x25751853Eab4D0eB3652B5eB6ecB102A2789644B",
+    "wbtc-call": "0x65a833afDc250D9d38f8CD9bC2B1E3132dB13B2F",
+    "aave-call": "0xe63151A0Ed4e5fafdc951D877102cf0977Abd365",
     "steth-call": "0x53773E034d9784153471813dacAFF53dBBB78E8c",
-    "eth-call": "0x65a833afDc250D9d38f8CD9bC2B1E3132dB13B2F",
+    "eth-call": "0x25751853Eab4D0eB3652B5eB6ecB102A2789644B",
     "eth-put": "0xCc323557c71C0D1D20a1861Dc69c06C5f3cC9624",
 }
 

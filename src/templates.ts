@@ -18,11 +18,11 @@ export const estimatedSize = (details) => {
     const firstTime = moment.unix(orderedSchedule[0][1] as number).format("HH.mmA")
 
     return `These are the estimated sizes for out V2 vaults:\n\n`+
-        `WBTC Call: ${formatNumber(details.RibbonThetaVaultWBTCCall)}\n` +
-        `AAVE Call:  ${formatNumber(details.RibbonThetaVaultAAVECall)}\n` +
-        `wstETH Call: ${formatNumber(details.RibbonThetaVaultSTETHCall)}\n` +
-        `ETH Call:  ${formatNumber(details.RibbonThetaVaultETHCall)}\n` +
-        `ETH Put:  ${formatNumber(details.RibbonThetaYearnVaultETHPut)} (Bid in USDC)\n\n` +
+        `WBTC Call: ${formatNumber(details["wbtc-call"])}\n` +
+        `AAVE Call:  ${formatNumber(details["aave-call"])}\n` +
+        `wstETH Call: ${formatNumber(details["steth-call"])}\n` +
+        `ETH Call:  ${formatNumber(details["eth-call"])}\n` +
+        `ETH Put:  ${formatNumber(details["eth-put"])} (Bid in USDC)\n\n` +
         `Please prepare the collateral needed to bid on the auctions beforehand because the auctions will only last for 10 minutes. See you at ${firstTime} UTC for the first auction.\n\n` +
         `Note: As we started deprecating v1 vaults a fortnight ago, there might be some difference between the actual auction amounts and the estimated amounts above as depositors migrate from our v1 to v2 vaults.`
 }
@@ -36,8 +36,10 @@ export const auctionDetails = (details) => {
 }
 
 export const liveAuction = (details) => { 
-    return `The ${details.asset} ${details.type} auction is now live:`+
-        `${details.asset} Auction Link: https://gnosis-auction.eth.limo/#/auction?auctionId=${details.auctionId}&chainId=1#topAnchor`
+    return `The ${details.asset} ${details.type} auction is now live:\n\n`+
+        `${details.asset} Auction Link:\n`+
+        `<a href='https://gnosis-auction.eth.limo/#/auction?auctionId=${details.auctionId}&chainId=1#topAnchor'>Link 1</a> | `+
+        `<a href='https://gnosis-auction.eth.limo/#/auction?auctionId=${details.auctionId}&chainId=1#topAnchor'>Link 2</a>`
 }
 
 export const stETHExplanation = (price) => {
@@ -62,12 +64,15 @@ export const scheduleTemplate = (schedule: Schedule) => {
         const auctionName = getVaultName(auction)
         const start = moment(schedule[auction].start, "HH.mm").format("HH.mmA")
         const end = moment(schedule[auction].end, "HH.mm").format("HH.mmA")
+        const additional = auction == "eth-put"
+            ? ` [Bid in USDC]`
+            : ``
 
-        return `${start}: ${auctionName} V2 Vault Auction starts\n` + 
-            `${end}: ${auctionName} V2 Vault Auction ends\n`
+        return `${start}: ${auctionName} V2 Vault Auction starts${additional}\n` + 
+            `${end}: ${auctionName} V2 Vault Auction ends${additional}\n`
     })
 
-    return `Hello everyone, this will be the auction schedule for today; ${moment().format("Do MMM YYYY")} (UTC Time):\n\n`+
+    return `Hello everyone, this will be the auction schedule for today; ${moment().utc().format("Do MMM YYYY")} (UTC Time):\n\n`+
         `${orderedAuction.join("")}\n`+
         `V1 Auctions will be for the following assets:\n\n`+
         `AVAX Call\n\n` +

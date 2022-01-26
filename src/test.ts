@@ -3,23 +3,18 @@ import {
     checkHash
 } from "./listener"
 import {
-    delay, getEstimatedSizes
+    getEstimatedSizes
 } from "./helpers"
 import { mockAuctionSeries } from "./constants"
 import * as fs from 'fs';
 import { estimatedSize, formatNumber } from "./templates";
+import { delay, readCache } from "./utils";
 require("dotenv").config()
 
 async function listenMockEvents() {
-    const cache = fs.readFileSync(__dirname+'/.cache')
-    const strikeCache = JSON.parse(cache.toString());
-
-    console.log(
-        `Strike price for ETH put is at $${formatNumber(strikeCache["ETHput"])}\n`
-        + `Please update the strike price if this is incorrect using /setstrike.`
-    )
+    const cache = readCache()
     
-    const sizes = await getEstimatedSizes(strikeCache)
+    const sizes = await getEstimatedSizes(cache.strike)
     console.log(estimatedSize(sizes))
 
     for (let i=0; i<mockAuctionSeries.length; i++) {

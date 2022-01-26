@@ -7,6 +7,12 @@ export type Schedule = {
     }
 }
 
+export const preauction = {
+    schedule: "07.00",
+    strike: "08.00",
+    size: "09.00"
+}
+
 export const schedule: Schedule = {
     "wbtc-call":
         {

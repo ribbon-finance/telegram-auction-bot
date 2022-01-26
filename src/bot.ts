@@ -3,10 +3,11 @@ import {
     strikeAssets,
 } from "./constants"
 import { Telegraf } from 'telegraf';
-import { getEstimatedSizes, readCache, writeCache } from "./helpers";
+import { getEstimatedSizes } from "./helpers";
 import { estimatedSize, formatNumber, scheduleTemplate } from "./templates";
 import { channel } from "diagnostics_channel";
 import { schedule, Schedule } from "./schedule";
+import { readCache, writeCache } from "./utils";
 require("dotenv").config()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -81,42 +82,5 @@ bot.command('getschedule', async (ctx) => {
         scheduleTemplate(schedule)
     )
 })
-
-// bot.command('setschedule', async (ctx) => {
-//     let cache = readCache()
-//     let schedule = {}
-//     const query = ctx.message.text.trim();
-//     const lines = query.split("\n")
-    
-//     lines.slice(1).map((line) => {
-//         const params = line.split(" ")
-//         if (params.length > 3) {
-//             ctx.reply(
-//                 `For each auction, please set the timing with the following format [auction] [start] [end] e.g. WBTCcall 10.20 10.30. Timings are in UTC.`
-//             )
-//         }
-
-//         const [vault, start, end] = params
-//         schedule[vault] = [start, end]
-//     })
-
-//     cache.schedule = schedule
-//     writeCache(cache)
-// })
-
-// bot.command('getscheduletemplate', async (ctx) => {
-//     const lineTemplate = AuctionList.map((auction) => {
-//         return `${auction} [start] [end]`
-//     })
-    
-//     const reply = `Please use the following command to set the schedule:\n\n`
-//         + lineTemplate.join("\n")
-//         + `\nv1 [start] [end]`
-
-//     ctx.reply(
-//         reply
-//     )
-    
-// })
 
 bot.launch()

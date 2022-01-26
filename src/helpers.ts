@@ -3,7 +3,15 @@ import {
     vaultTypes, 
     vaultAssets, 
     externalAddress, 
-    getVaultDecimals 
+    getVaultDecimals, 
+    Auction,
+    getVaultAbi,
+    VaultAddressMap,
+    AuctionList,
+    getVaultName,
+    getUnderlyingDecimals,
+    getBiddingToken,
+    getOptionType
 } from "./constants"
 import RibbonThetaVaultABI from "./abi/RibbonThetaVault.json"
 import RibbonThetaVaultSTETHABI from "./abi/RibbonThetaVaultSTETH.json"
@@ -17,36 +25,13 @@ import Web3 from "web3"
 import { ethers, BigNumber } from "ethers"
 import moment from "moment-timezone";
 import { AbiItem } from 'web3-utils'
-import * as fs from 'fs';
+import { readCache } from "./utils"
+
 
 require("dotenv").config()
 
 const web3 = new Web3(process.env.RPC_URL)
 const InputDataDecoder = require("ethereum-input-data-decoder")
-
-export type Cache = {
-    strike: {}
-};
-
-const emptyCache: Cache = {
-    strike: {}
-}
-
-async function calculateyvPutSize(amount) {
-    const yvUSDC = new web3.eth.Contract(
-        yvUSDCABI as AbiItem[], 
-        externalAddress.yvUSDC
-    )
-    const yvUSDCPrice = await yvUSDC.methods.pricePerShare().call()
-
-    const oracle = new web3.eth.Contract(
-        ChainLinkOracleABI as AbiItem[], 
-        externalAddress.ETHUSDChainlinkOracle
-    )
-
-    return BigNumber.from(amount).mul(10**6)
-        .div(yvUSDCPrice)
-}
 
 export async function decodeTransaction(hash) {
     const tx = await web3.eth.getTransaction(hash);
@@ -84,7 +69,7 @@ function decodeLog(log, abi, method) {
     );
 }
 
-export async function decodeCommitAndClose(hash, vault) {
+export async function decodeCommitAndClose(hash: string, auction: Auction) {
     const tx = await web3.eth.getTransactionReceipt(hash);
 
     const oTokenCreationLog = tx.logs.filter(
@@ -97,18 +82,9 @@ export async function decodeCommitAndClose(hash, vault) {
         "OtokenCreated"
     );
     
-    let size = await getDeposit(vault)
-    const decimals = getVaultDecimals(vault)
+    let size = await _getSize(auction)
+    const decimals = getVaultDecimals(auction)
     const strikePrice = BigNumber.from(oTokenDetails.strikePrice)
-
-    if (vault == "RibbonThetaYearnVaultETHPut") {
-        size = await calculateyvPutSize(size)
-        size = size.mul(10**8).div(strikePrice)
-    } else if (vault == "RibbonThetaVaultSTETHCall") {
-        const divider = ethers.utils.parseUnits('1', decimals)
-        const steth = await getStethPrice(false);
-        size = size.mul(divider).div(steth)
-    }
 
     return {
         strikePrice: parseFloat(
@@ -116,16 +92,14 @@ export async function decodeCommitAndClose(hash, vault) {
         ).toFixed(2),
         expiry: moment.unix(Number(oTokenDetails.expiry))
             .utc().format("Do MMMM YYYY [at] HA UTC"), 
-        size: parseFloat(
-            ethers.utils.formatUnits(size, decimals)
-        ).toFixed(2),
-        vault: vault,
-        asset: vaultAssets[vault],
-        type: vaultTypes[vault],
+        size: size,
+        vault: auction,
+        asset: getBiddingToken(auction),
+        type: getOptionType(auction),
     }
 }
 
-export async function decodeRollToNextOption(hash, vault) {
+export async function decodeRollToNextOption(hash: string, auction: Auction) {
     const tx = await web3.eth.getTransactionReceipt(hash);
     const NewAuctionLog = tx.logs.filter(
         log => log.address == externalAddress.gnosisEasyAuction
@@ -143,8 +117,8 @@ export async function decodeRollToNextOption(hash, vault) {
                 BigNumber.from(NewAuctionDetails._auctionedSellAmount), 8)
         ).toFixed(2), 
         auctionId: NewAuctionDetails.auctionId,
-        asset: vaultAssets[vault],
-        type: vaultTypes[vault]
+        asset: getBiddingToken(auction),
+        type: getOptionType(auction)
     }
 }
 
@@ -178,50 +152,13 @@ export async function getYvusdcPrice(formatted=true) {
         : pricePerShare
 }
 
-export async function getDeposit(vault) {
-    const abi = vault != "RibbonThetaVaultSTETHCall"
-            ? RibbonThetaVaultABI
-            : RibbonThetaVaultSTETHABI;
-
-    const contract = new web3.eth.Contract(
-        abi as AbiItem[], 
-        vaultAddress[vault]
-    )
-
-    const total = await contract.methods.totalBalance().call();
-    const state = await contract.methods.vaultState().call();
-    const pps = await contract.methods.pricePerShare().call();
-    const decimals = getVaultDecimals(vault)
-    const divider = ethers.utils.parseUnits('1', decimals)
-
-    let size = state.queuedWithdrawShares != "0"
-        ? BigNumber.from(total)
-            .sub(BigNumber.from(state.queuedWithdrawShares).mul(pps).div(divider))
-        : BigNumber.from(total)
-    
-    return size;
-}
-
 export async function getEstimatedSizes(strikes) {
-    const promises = await Promise.all(Object.keys(vaultAddress).map(async (vault) => {
-
-        let size = await getDeposit(vault)
-        const decimals = getVaultDecimals(vault)
-        const divider = ethers.utils.parseUnits('1', decimals)
-
-        if (vault == "RibbonThetaYearnVaultETHPut") {
-            size = await calculateyvPutSize(size)
-            size = size.div(strikes["ETHput"])
-        } else if (vault == "RibbonThetaVaultSTETHCall") {
-            const steth = await getStethPrice(false);
-            size = size.mul(divider).div(steth)
-        }
+    const promises = await Promise.all(AuctionList.map(async (auction) => {
+        const size = await _getSize(auction)
 
         return {
-            vaultName: vault,
-            size: parseFloat(
-                ethers.utils.formatUnits(size, decimals)
-            ).toFixed(2).toLocaleString()
+            vaultName: auction,
+            size: size
         };
     }))
 
@@ -230,42 +167,43 @@ export async function getEstimatedSizes(strikes) {
     promises.forEach(element => {
         sizes[element.vaultName] = element.size
     }) 
-
     return sizes;
 }
 
-export function readCache() {
-    try {
-        const buffer = fs.readFileSync(__dirname+'/.cache')
+async function _getSize(auction: Auction) {
+    const abi = getVaultAbi(auction)
 
-        return JSON.parse(buffer.toString()) as Cache
-    } catch {
-        fs.writeFile(
-            __dirname+'/.cache', 
-            JSON.stringify(emptyCache), 
-            err => {
-                if (err) {
-                    console.error(err)
-                    return
-            }
-        })
+    const contract = new web3.eth.Contract(
+        abi,
+        VaultAddressMap[auction]
+    )
 
-        return emptyCache
-    }
-}
+    const total = await contract.methods.totalBalance().call();
+    const state = await contract.methods.vaultState().call();
+    const pps = await contract.methods.pricePerShare().call();
+    const decimals = getUnderlyingDecimals(auction)
+    const divider = ethers.utils.parseUnits('1', decimals)
 
-export function writeCache(cache: Cache){
-    fs.writeFile(
-        __dirname+'/.cache', 
-        JSON.stringify(cache), 
-        err => {
-            if (err) {
-                console.error(err)
-                return
+    let size = BigNumber.from(total)
+        .sub(BigNumber.from(state.queuedWithdrawShares).mul(pps).div(divider))
+    
+    if (auction == "eth-put") {
+        let strike: string
+        try {
+            strike = readCache().strike["ETHput"]
+        } catch {
+            return "ETH Put strike not set"
         }
-    })
+        
+        const yvUSDCPrice = await getYvusdcPrice(false)
+        size = size.mul(10**6).div(yvUSDCPrice).div(strike)
+    } else if (auction == "steth-call") {
+        const steth = await getStethPrice(false);
+        size = size.mul(divider).div(steth)
+    }
+
+    return parseFloat(
+        ethers.utils.formatUnits(size, decimals)
+    ).toFixed(2);
 }
 
-export function delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
-}
