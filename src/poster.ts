@@ -27,7 +27,6 @@ async function main(interval: number){
         let now = moment().unix()
         let last = cache.last
         let sent = cache.sent
-        
 
         if (now >= last + resetDuration && Object.keys(sent).length > 0) {
             cache.sent = {}

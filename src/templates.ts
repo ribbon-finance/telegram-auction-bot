@@ -39,7 +39,7 @@ export const liveAuction = (details) => {
     return `The ${details.asset} ${details.type} auction is now live:\n\n`+
         `${details.asset} Auction Link:\n`+
         `<a href='https://gnosis-auction.eth.limo/#/auction?auctionId=${details.auctionId}&chainId=1#topAnchor'>Link 1</a> | `+
-        `<a href='https://gnosis-auction.eth.limo/#/auction?auctionId=${details.auctionId}&chainId=1#topAnchor'>Link 2</a>`
+        `<a href='https://gnosis-auction.eth.link/#/auction?auctionId=${details.auctionId}&chainId=1#topAnchor'>Link 2</a>`
 }
 
 export const stETHExplanation = (price) => {

@@ -27,7 +27,6 @@ import moment from "moment-timezone";
 import { AbiItem } from 'web3-utils'
 import { readCache } from "./utils"
 
-
 require("dotenv").config()
 
 const web3 = new Web3(process.env.RPC_URL)
