@@ -10,9 +10,9 @@ export type Schedule = {
 }
 
 export const preauction = {
-    schedule: "04:25 3",
-    strike: "04:26 3",
-    size: "04:27 3",
+    schedule: "04:25 5",
+    strike: "04:26 5",
+    size: "04:27 5",
 }
 
 export const schedule: Schedule = {
@@ -20,35 +20,35 @@ export const schedule: Schedule = {
         {   
             start: "10.20",
             end: "10.30",
-            info: "04:53",
-            open: "04:54",
+            info: "10.15",
+            open: "10.19",
         },
     "aave-call":
         {   
             start: "10.30",
             end: "10.40",
-            info: "04:55",
-            open: "04:56",
+            info: "10.25",
+            open: "10.29",
         },
     "steth-call":
         {   
             start: "10.40",
             end: "10.50",
-            info: "04:57",
-            open: "04:58",
+            info: "10.35",
+            open: "10.39",
         },
     "eth-call":
         {   
             start: "10.50",
             end: "11.00",
-            info: "04:59",
-            open: "05:00",
+            info: "10.45",
+            open: "10.49",
         },
     "eth-put":
         {   
             start: "11.00",
             end: "11.10",
-            info: "05:01",
-            open: "05:02",
+            info: "10.55",
+            open: "10.59",
         },
 }
