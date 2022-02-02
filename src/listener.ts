@@ -66,8 +66,7 @@ export async function checkHash(hash, test=false) {
                 
                 let cache = readCache()
                 cache.pending[auction+"-info"] = {
-                    scheduled: moment.utc(schedule[auction].start, "HH.mm").unix() 
-                        - (auction == "wbtc-call" as Auction ? buffer * 2 : buffer),
+                    scheduled: moment.utc(schedule[auction].info, "HH.mm").unix(),
                     message: msg
                 }
 
@@ -83,7 +82,7 @@ export async function checkHash(hash, test=false) {
 
                 let cache = readCache()
                 cache.pending[auction+"-open"] = {
-                    scheduled: moment.utc(schedule[auction].start, "HH.mm").unix(),
+                    scheduled: moment.utc(schedule[auction].open, "HH.mm").unix(),
                     message: msg
                 }
 

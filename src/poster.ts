@@ -17,9 +17,9 @@ const sendReceipt = {
 }
 
 async function main(interval: number){
-    const schedulePost = moment.utc(preauction.schedule, "HH.mm").day(5)
-    const strikePost = moment.utc(preauction.strike, "HH.mm").day(5)
-    const sizePost = moment.utc(preauction.size, "HH.mm").day(5)
+    const schedulePost = moment.utc(preauction.schedule, "HH.mm d")
+    const strikePost = moment.utc(preauction.strike, "HH.mm d")
+    const sizePost = moment.utc(preauction.size, "HH.mm d")
     const auctionSchedule = schedule
 
     while (true) {
@@ -63,15 +63,11 @@ async function main(interval: number){
 
         for (let i=0; i < pending.length; i++){
             if (now >= pending[i].scheduled) {
-
                 await sendOrEditMessage(pending[i].key, pending[i].message)
-
-                delete cache.pending[pending[i].key]
                 await delay(1000)
             }
         }
 
-        // writeCache(cache)
         await delay(interval)
     }
 }
@@ -113,7 +109,9 @@ async function sendOrEditMessage(key, text){
         } catch {}
     }
 
+    delete cache.pending[key]
     cache.last = moment().unix()
+    console.log(`Sent ${key} ${cache.last}`)
     
     writeCache(cache)
 }
