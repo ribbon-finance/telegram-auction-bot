@@ -1,12 +1,10 @@
 import {
-    AuctionList,
     strikeAssets,
 } from "./constants"
 import { Telegraf } from 'telegraf';
 import { getEstimatedSizes } from "./helpers";
 import { estimatedSize, formatNumber, scheduleTemplate } from "./templates";
-import { channel } from "diagnostics_channel";
-import { schedule, Schedule } from "./schedule";
+import { schedule } from "./schedule";
 import { readCache, writeCache } from "./utils";
 require("dotenv").config()
 

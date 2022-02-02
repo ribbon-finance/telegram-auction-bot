@@ -6,7 +6,7 @@ import {
     getEstimatedSizes
 } from "./helpers"
 import { mockAuctionSeries } from "./constants"
-import { estimatedSize, formatNumber } from "./templates";
+import { estimatedSize } from "./templates";
 import { delay, readCache } from "./utils";
 require("dotenv").config()
 

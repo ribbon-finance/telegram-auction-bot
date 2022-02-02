@@ -18,18 +18,14 @@ import {
     getYvusdcPrice,
 } from "./helpers"
 
-import { Telegram } from 'telegraf';
 import Web3 from "web3"
 import { readCache, writeCache } from "./utils";
-import moment, { unix } from "moment-timezone";
+import moment from "moment-timezone";
 import { schedule } from "./schedule";
 
 require("dotenv").config()
 
-const telegram: Telegram = new Telegram(process.env.BOT_TOKEN as string);
-const chatId = process.env.CHAT_ID
 const web3Ws = new Web3(process.env.WEBSOCKET_URL)
-const buffer = 5*60
 
 const transactionLedger = []
 
