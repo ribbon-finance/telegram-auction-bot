@@ -10,9 +10,9 @@ export type Schedule = {
 }
 
 export const preauction = {
-    schedule: "04:25 5",
-    strike: "04:26 5",
-    size: "04:27 5",
+    schedule: "06:00 5",
+    strike: "08:00 5",
+    size: "09:20 5",
 }
 
 export const schedule: Schedule = {

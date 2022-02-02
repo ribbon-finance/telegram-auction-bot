@@ -1,8 +1,8 @@
 import { Telegram } from 'telegraf';
 import { delay, readCache, writeCache } from "./utils";
-import moment, { unix } from "moment-timezone";
-import { preauction, schedule, Schedule } from "./schedule";
-import { estimatedSize, formatNumber, scheduleTemplate } from "./templates";
+import moment from "moment-timezone";
+import { preauction, schedule } from "./schedule";
+import { estimatedSize, scheduleTemplate } from "./templates";
 import { getEstimatedSizes } from './helpers';
 
 require("dotenv").config()
@@ -12,13 +12,11 @@ const chatId = process.env.CHAT_ID
 const resetDuration = 5*60*60 // 5 hours
 const sendReceipt = {
     schedule: false,
-    strike: false,
     size: false,
 }
 
 async function main(interval: number){
     const schedulePost = moment.utc(preauction.schedule, "HH.mm d")
-    const strikePost = moment.utc(preauction.strike, "HH.mm d")
     const sizePost = moment.utc(preauction.size, "HH.mm d")
     const auctionSchedule = schedule
 
@@ -37,13 +35,8 @@ async function main(interval: number){
             await sendOrEditMessage("schedule", scheduleTemplate(auctionSchedule))
             sendReceipt.schedule = true
             await delay(1000)
-        } else if (now >= strikePost.unix() && !sendReceipt.strike ) {
-            const strike = cache.strike["ETHput"]
-            await sendOrEditMessage("strike", `Please update the strike price for ETH Put.\nCurrent Strike Price: $${formatNumber(strike)}`)
-            sendReceipt.strike = true
-            await delay(1000)
         } else if (now >= sizePost.unix() && !sendReceipt.size) {
-            const sizes = await getEstimatedSizes(cache.strike)
+            const sizes = await getEstimatedSizes()
             await sendOrEditMessage("size", estimatedSize(sizes))
             sendReceipt.size = true
             await delay(1000)

@@ -1,31 +1,27 @@
 import { 
     vaultAddress, 
-    vaultTypes, 
-    vaultAssets, 
     externalAddress, 
-    getVaultDecimals, 
     Auction,
     getVaultAbi,
     VaultAddressMap,
     AuctionList,
-    getVaultName,
     getUnderlyingDecimals,
     getBiddingToken,
-    getOptionType
+    getOptionType,
+    getStrikeSelectionAbi,
+    StrikeSelectionAddressMap
 } from "./constants"
 import RibbonThetaVaultABI from "./abi/RibbonThetaVault.json"
 import RibbonThetaVaultSTETHABI from "./abi/RibbonThetaVaultSTETH.json"
 import oTokenFactoryABI from "./abi/oTokenFactory.json"
 import GnosisEasyAuctionABI from "./abi/GnosisEasyAuction.json"
 import UniswapMulticallABI from "./abi/UniswapMulticall.json"
-import ChainLinkOracleABI from "./abi/ChainLinkOracle.json"
 import stETHABI from "./abi/stETH.json"
 import yvUSDCABI from "./abi/yvUSDC.json"
 import Web3 from "web3"
 import { ethers, BigNumber } from "ethers"
 import moment from "moment-timezone";
 import { AbiItem } from 'web3-utils'
-import { readCache } from "./utils"
 
 require("dotenv").config()
 
@@ -82,7 +78,6 @@ export async function decodeCommitAndClose(hash: string, auction: Auction) {
     );
     
     let size = await _getSize(auction)
-    const decimals = getVaultDecimals(auction)
     const strikePrice = BigNumber.from(oTokenDetails.strikePrice)
 
     return {
@@ -141,7 +136,6 @@ export async function getYvusdcPrice(formatted=true) {
         yvUSDCABI as AbiItem[], 
         externalAddress.yvUSDC
     )
-    const numerator = ethers.utils.parseUnits('1', 18)
     const pricePerShare = await yvUSDC.methods.pricePerShare().call()
     
     return formatted 
@@ -151,7 +145,7 @@ export async function getYvusdcPrice(formatted=true) {
         : pricePerShare
 }
 
-export async function getEstimatedSizes(strikes) {
+export async function getEstimatedSizes() {
     const promises = await Promise.all(AuctionList.map(async (auction) => {
         const size = await _getSize(auction)
 
@@ -187,15 +181,10 @@ async function _getSize(auction: Auction) {
         .sub(BigNumber.from(state.queuedWithdrawShares).mul(pps).div(divider))
     
     if (auction == "eth-put") {
-        let strike: string
-        try {
-            strike = readCache().strike["ETHput"]
-        } catch {
-            return "ETH Put strike not set"
-        }
-        
+        const expiry = moment().add(1, "week").utc().day(5).hour(8).minute(0).second(0).unix()
         const yvUSDCPrice = await getYvusdcPrice(false)
-        size = size.mul(10**6).div(yvUSDCPrice).div(strike)
+        const strikePrice = await getStrike(auction, expiry, true)
+        size = size.mul(10**6).div(yvUSDCPrice).mul(10**8).div(strikePrice.newStrikePrice)
     } else if (auction == "steth-call") {
         const steth = await getStethPrice(false);
         size = size.mul(divider).div(steth)
@@ -204,5 +193,18 @@ async function _getSize(auction: Auction) {
     return parseFloat(
         ethers.utils.formatUnits(size, decimals)
     ).toFixed(2);
+}
+
+async function getStrike(auction: Auction, expiry: number, isPut: Boolean) {
+    const abi = getStrikeSelectionAbi(auction) 
+
+    const contract = new web3.eth.Contract(
+        abi,
+        StrikeSelectionAddressMap[auction]
+    )
+
+    const strike = await contract.methods.getStrikePrice(expiry, isPut).call();
+
+    return strike
 }
 

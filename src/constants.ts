@@ -1,11 +1,6 @@
 import RibbonThetaVaultABI from "./abi/RibbonThetaVault.json"
 import RibbonThetaVaultSTETHABI from "./abi/RibbonThetaVaultSTETH.json"
-import oTokenFactoryABI from "./abi/oTokenFactory.json"
-import GnosisEasyAuctionABI from "./abi/GnosisEasyAuction.json"
-import UniswapMulticallABI from "./abi/UniswapMulticall.json"
-import ChainLinkOracleABI from "./abi/ChainLinkOracle.json"
-import stETHABI from "./abi/stETH.json"
-import yvUSDCABI from "./abi/yvUSDC.json"
+import StrikeSelectionABI from "./abi/StrikeSelection.json"
 import { AbiItem } from 'web3-utils'
 
 export const AuctionList = [
@@ -68,12 +63,33 @@ export const getVaultAbi = (auction: Auction) => {
     }
 }
 
+export const getStrikeSelectionAbi = (auction: Auction) => {
+    switch (auction) {
+        case "wbtc-call":
+        case "aave-call":
+        case "eth-call":
+        case "steth-call":
+            return [] as AbiItem[]
+        case "eth-put":
+            return StrikeSelectionABI as AbiItem[]
+    }
+}
+
+
 export const VaultAddressMap: { [auction in Auction]: string } = {
     "wbtc-call": "0x65a833afDc250D9d38f8CD9bC2B1E3132dB13B2F",
     "aave-call": "0xe63151A0Ed4e5fafdc951D877102cf0977Abd365",
     "steth-call": "0x53773E034d9784153471813dacAFF53dBBB78E8c",
     "eth-call": "0x25751853Eab4D0eB3652B5eB6ecB102A2789644B",
     "eth-put": "0xCc323557c71C0D1D20a1861Dc69c06C5f3cC9624",
+}
+
+export const StrikeSelectionAddressMap: { [auction in Auction]: string } = {
+    "wbtc-call": "",
+    "aave-call": "",
+    "steth-call": "",
+    "eth-call": "",
+    "eth-put": "0x39d3799b8ABEfC3d05db5BA3b3B2770146475000",
 }
 
 

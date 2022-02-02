@@ -13,7 +13,7 @@ require("dotenv").config()
 async function listenMockEvents() {
     const cache = readCache()
     
-    const sizes = await getEstimatedSizes(cache.strike)
+    const sizes = await getEstimatedSizes()
     console.log(estimatedSize(sizes))
 
     for (let i=0; i<mockAuctionSeries.length; i++) {

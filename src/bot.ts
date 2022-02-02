@@ -49,29 +49,7 @@ bot.command('setstrike', (ctx) => {
 })
 
 bot.command('getsizes', async (ctx) => {
-    const cache = readCache()
-    const strikes = cache.strike
-
-    if (!strikes) {
-        ctx.reply(
-            `Strike price for ETH put is not set.`
-        )
-        return
-    }
-
-    if (!strikes["ETHput"]) {
-        ctx.reply(
-            `Strike price for ETH put is not set.`
-        )
-        return
-    }
-
-    ctx.reply(
-        `Strike price for ETH put is at $${formatNumber(strikes["ETHput"])}\n`
-        + `Please update the strike price if this is incorrect using /setstrike.`
-    )
-    
-    const sizes = await getEstimatedSizes(strikes)
+    const sizes = await getEstimatedSizes()
     ctx.reply(
         estimatedSize(sizes)
     )
